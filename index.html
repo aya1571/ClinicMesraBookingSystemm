@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Clinic Mesra - Doctor First Booking</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .card {
+            border-radius: 24px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+            border: none;
+            overflow: hidden;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+        }
+        /* Simple progress bar instead of circles */
+        .progress-tracker {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background: #f1f3f5;
+            border-radius: 50px;
+            padding: 6px;
+            position: relative;
+        }
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            padding: 10px 8px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            color: #6c757d;
+            background: transparent;
+            cursor: default;
+            position: relative;
+            z-index: 2;
+        }
+        .progress-step.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+        }
+        .progress-step.completed {
+            background: #28a745;
+            color: white;
+        }
+        .doctor-card {
+            cursor: pointer;
+            border: 2px solid #e9ecef;
+            border-radius: 18px;
+            transition: all 0.2s;
+            background: white;
+        }
+        .doctor-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        .doctor-card.selected {
+            border-color: #28a745;
+            background: #f0fff4;
+            box-shadow: 0 8px 18px rgba(40,167,69,0.15);
+        }
+        .doctor-avatar {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+        }
+        .time-slot-btn {
+            border-radius: 40px !important;
+            padding: 10px 24px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .time-slot-btn.selected-time {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            margin-top: 40px;
+        }
+        @media (max-width: 768px) {
+            .progress-step { font-size: 0.7rem; padding: 8px 4px; }
+            .doctor-avatar { width: 45px; height: 45px; font-size: 1.4rem; }
+        }
+        .fade-section {
+            transition: opacity 0.25s ease;
+        }
+        .doctor-schedule-badge {
+            background: #e9ecef;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+        .selection-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-clinic-medical"></i> Clinic Mesra
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="#" onclick="showPage('home')"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="resetAndShowBooking()"><i class="fas fa-calendar-plus"></i> Book Appointment</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="showPage('view')"><i class="fas fa-list"></i> View Appointments</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- HOME PAGE -->
+        <div id="homePage" class="page-content">
+            <div class="card">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="text-center mb-4"><i class="fas fa-hand-holding-heart"></i> Welcome to Clinic Mesra</h1>
+                    <p class="text-center lead">Doctor First Booking: Choose Doctor → Pick Date → Select Time</p>
+                    <hr>
+                    <div class="row mt-4">
+                        <div class="col-md-4 text-center mb-4">
+                            <i class="fas fa-clock fa-3x text-primary"></i>
+                            <h5 class="mt-2">Operating Hours</h5>
+                            <p>Mon-Fri: 8am - 10pm<br>Sat: 9am - 5pm<br>Sun: Closed</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-4">
+                            <i class="fas fa-user-md fa-3x text-info"></i>
+                            <h5 class="mt-2">Our Specialists</h5>
+                            <p>Dr. Sarah (Mon/Wed/Fri)<br>Dr. Amir (Tue/Thu/Sat)<br>Dr. Lisa (Mon-Fri)</p>
+                        </div>
+                        <div class="col-md-4 text-center mb-4">
+                            <i class="fas fa-phone fa-3x text-success"></i>
+                            <h5 class="mt-2">Contact</h5>
+                            <p>03-7722 1234<br>hotline: 012-345 6789</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-primary btn-lg" onclick="resetAndShowBooking()">
+                            <i class="fas fa-calendar-check"></i> Book Appointment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOOKING PAGE - NO CIRCLES, JUST SIMPLE PROGRESS BAR -->
+        <div id="bookingPage" class="page-content" style="display: none;">
+            <div class="card">
+                <div class="card-body p-4 p-md-5">
+                    <h2 class="text-center mb-4"><i class="fas fa-stethoscope"></i> Book Appointment</h2>
+                    
+                    <!-- Simple Progress Tracker (NO CIRCLES) -->
+                    <div class="progress-tracker" id="progressTracker">
+                        <div class="progress-step" id="step1Label">1. Doctor</div>
+                        <div class="progress-step" id="step2Label">2. Date</div>
+                        <div class="progress-step" id="step3Label">3. Time</div>
+                        <div class="progress-step" id="step4Label">4. Details</div>
+                    </div>
+
+                    <!-- Simple selection info line -->
+                    <div id="selectionInfo" class="selection-info text-muted small">
+                        <i class="fas fa-info-circle me-1"></i> Step 1: Select a doctor
+                    </div>
+
+                    <form id="bookingForm">
+                        <!-- STEP 1: DOCTOR SELECTION -->
+                        <div id="step1Container" class="fade-section">
+                            <div id="doctorListContainer" class="row g-3 mb-4"></div>
+                            <div class="text-end">
+                                <button type="button" class="btn btn-primary" id="nextToDateBtn" disabled>
+                                    Next: Select Date <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- STEP 2: DATE SELECTION -->
+                        <div id="step2Container" style="display: none;" class="fade-section">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Select Appointment Date</label>
+                                <input type="date" class="form-control form-control-lg" id="appointmentDate" required>
+                                <div class="form-text" id="dateHelpText"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <button type="button" class="btn btn-outline-secondary" id="backToDoctorBtn"><i class="fas fa-arrow-left"></i> Back to Doctors</button>
+                                <button type="button" class="btn btn-primary" id="nextToTimeBtn" disabled>Next: Select Time <i class="fas fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- STEP 3: TIME SLOT -->
+                        <div id="step3Container" style="display: none;" class="fade-section">
+                            <div id="timeSlotsWrapper" class="mb-4">
+                                <div id="timeSlotsContainer" class="d-flex flex-wrap gap-2"></div>
+                                <div id="timeSlotMessage" class="small text-muted mt-2"></div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary" id="backToDateBtn"><i class="fas fa-arrow-left"></i> Back to Date</button>
+                                <button type="button" class="btn btn-primary" id="nextToDetailsBtn" disabled>Next: Your Details <i class="fas fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- STEP 4: PATIENT DETAILS (NO SERVICE) -->
+                        <div id="step4Container" style="display: none;" class="fade-section">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="patientName" placeholder="Enter full name" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Phone Number <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" id="patientPhone" placeholder="012-3456789" required>
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">Notes (optional)</label>
+                                    <textarea class="form-control" id="patientNotes" rows="2" placeholder="Any symptoms or requests..."></textarea>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-2">
+                                <button type="button" class="btn btn-outline-secondary" id="backToTimeBtn"><i class="fas fa-arrow-left"></i> Back to Time</button>
+                                <button type="submit" class="btn btn-success btn-lg px-4"><i class="fas fa-check-circle"></i> Confirm Booking</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW APPOINTMENTS PAGE -->
+        <div id="viewPage" class="page-content" style="display: none;">
+            <div class="card">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4"><i class="fas fa-calendar-alt"></i> All Appointments</h2>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr><th>#</th><th>Name</th><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th><th>Action</th></tr>
+                            </thead>
+                            <tbody id="bookingsList"></tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-success" onclick="resetAndShowBooking()"><i class="fas fa-plus"></i> New Appointment</button>
+                        <button class="btn btn-danger" onclick="deleteAllBookings()"><i class="fas fa-trash-alt"></i> Delete All</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer><p>&copy; 2026 Clinic Mesra · Doctor First Flow</p></footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // DOCTOR DATABASE
+        const doctors = [
+            { id: "dr_sarah", name: "Dr. Sarah (General Medicine)", specialty: "General Medicine, Pediatrics", workingDays: [1, 3, 5], workingDaysText: "Mon, Wed, Fri", icon: "👩‍⚕️", availableTimes: ["9:00 AM", "10:00 AM", "11:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"] },
+            { id: "dr_amir", name: "Dr. Amir (Internal Medicine)", specialty: "Internal Medicine, Cardiology", workingDays: [2, 4, 6], workingDaysText: "Tue, Thu, Sat", icon: "👨‍⚕️", availableTimes: ["9:00 AM", "11:00 AM", "2:00 PM", "3:00 PM", "5:00 PM", "8:00 PM"] },
+            { id: "dr_lisa", name: "Dr. Lisa (Family Medicine)", specialty: "Family Medicine, Vaccination", workingDays: [1, 2, 3, 4, 5], workingDaysText: "Mon - Fri", icon: "👩‍⚕️", availableTimes: ["10:00 AM", "11:00 AM", "2:00 PM", "4:00 PM", "5:00 PM", "8:00 PM"] }
+        ];
+
+        let bookings = JSON.parse(localStorage.getItem('clinicMesraBookings')) || [];
+        function saveBookings() { localStorage.setItem('clinicMesraBookings', JSON.stringify(bookings)); }
+
+        let currentStep = 1;
+        let selectedDoctor = null;
+        let selectedDate = "";
+        let selectedTimeSlot = "";
+
+        function getDayIndex(dateStr) { return new Date(dateStr).getDay(); }
+        function isDoctorWorkingOnDate(doctor, dateStr) {
+            const day = getDayIndex(dateStr);
+            return doctor.workingDays.includes(day);
+        }
+        function getBookedTimes(doctorId, dateStr) {
+            return bookings.filter(b => b.doctorId === doctorId && b.date === dateStr).map(b => b.time);
+        }
+
+        // Update progress bar (simple rectangle style, no circles)
+        function updateProgressBar() {
+            const steps = ['step1Label', 'step2Label', 'step3Label', 'step4Label'];
+            for (let i = 0; i < steps.length; i++) {
+                const stepEl = document.getElementById(steps[i]);
+                if (stepEl) {
+                    stepEl.classList.remove('active', 'completed');
+                    if (i + 1 === currentStep) {
+                        stepEl.classList.add('active');
+                    } else if (i + 1 < currentStep) {
+                        stepEl.classList.add('completed');
+                    }
+                }
+            }
+        }
+
+        function updateSelectionInfo() {
+            const infoDiv = document.getElementById('selectionInfo');
+            if (!infoDiv) return;
+            
+            if (currentStep === 1) {
+                infoDiv.innerHTML = `<i class="fas fa-user-md me-1"></i> Step 1: Select a doctor to begin`;
+            } else if (currentStep === 2 && selectedDoctor) {
+                infoDiv.innerHTML = `<i class="fas fa-user-md me-1"></i> ${selectedDoctor.name} · Working days: ${selectedDoctor.workingDaysText} · Select a date`;
+            } else if (currentStep === 3 && selectedDoctor && selectedDate) {
+                infoDiv.innerHTML = `<i class="fas fa-calendar me-1"></i> ${selectedDoctor.name} · ${selectedDate} · Choose a time slot`;
+            } else if (currentStep === 4 && selectedDoctor && selectedDate && selectedTimeSlot) {
+                infoDiv.innerHTML = `<i class="fas fa-check-circle me-1 text-success"></i> ${selectedDoctor.name} · ${selectedDate} · ${selectedTimeSlot} · Enter your details`;
+            } else {
+                infoDiv.innerHTML = `<i class="fas fa-info-circle me-1"></i> Step ${currentStep} of 4`;
+            }
+        }
+
+        function updateStepUI() {
+            updateProgressBar();
+            document.getElementById('step1Container').style.display = currentStep === 1 ? 'block' : 'none';
+            document.getElementById('step2Container').style.display = currentStep === 2 ? 'block' : 'none';
+            document.getElementById('step3Container').style.display = currentStep === 3 ? 'block' : 'none';
+            document.getElementById('step4Container').style.display = currentStep === 4 ? 'block' : 'none';
+            updateSelectionInfo();
+        }
+
+        function resetBookingState() {
+            selectedDoctor = null;
+            selectedDate = "";
+            selectedTimeSlot = "";
+            currentStep = 1;
+            document.getElementById('appointmentDate').value = "";
+            document.getElementById('dateHelpText').innerHTML = "";
+            document.getElementById('nextToDateBtn').disabled = true;
+            document.getElementById('nextToTimeBtn').disabled = true;
+            document.getElementById('nextToDetailsBtn').disabled = true;
+            document.getElementById('doctorListContainer').innerHTML = '';
+            document.getElementById('timeSlotsContainer').innerHTML = '';
+            updateStepUI();
+        }
+
+        function renderDoctorList() {
+            const container = document.getElementById('doctorListContainer');
+            let html = '';
+            doctors.forEach(doc => {
+                const isSelected = (selectedDoctor && selectedDoctor.id === doc.id);
+                html += `
+                    <div class="col-md-4">
+                        <div class="doctor-card p-3 h-100 ${isSelected ? 'selected' : ''}" data-doctor-id="${doc.id}">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="doctor-avatar me-3">${doc.icon}</div>
+                                <div><h6 class="mb-0">${doc.name}</h6><small class="text-muted">${doc.specialty}</small></div>
+                            </div>
+                            <div class="mt-2">
+                                <span class="doctor-schedule-badge"><i class="far fa-calendar-alt"></i> ${doc.workingDaysText}</span>
+                            </div>
+                            <div class="mt-2 small text-primary"><i class="fas fa-clock"></i> Available: ${doc.availableTimes.length} slots</div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            document.querySelectorAll('.doctor-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const docId = card.getAttribute('data-doctor-id');
+                    const doctorObj = doctors.find(d => d.id === docId);
+                    if (doctorObj) {
+                        document.querySelectorAll('.doctor-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        selectedDoctor = doctorObj;
+                        document.getElementById('nextToDateBtn').disabled = false;
+                        updateSelectionInfo();
+                    }
+                });
+            });
+        }
+
+        // Event Listeners
+        document.getElementById('nextToDateBtn').addEventListener('click', () => {
+            if (!selectedDoctor) return;
+            currentStep = 2;
+            updateStepUI();
+            document.getElementById('appointmentDate').value = "";
+            document.getElementById('dateHelpText').innerHTML = "";
+            document.getElementById('nextToTimeBtn').disabled = true;
+            selectedDate = "";
+        });
+
+        document.getElementById('backToDoctorBtn').addEventListener('click', () => {
+            currentStep = 1;
+            updateStepUI();
+            renderDoctorList();
+        });
+
+        const dateInput = document.getElementById('appointmentDate');
+        dateInput.addEventListener('change', function() {
+            const dateVal = dateInput.value;
+            if (!dateVal || !selectedDoctor) {
+                document.getElementById('nextToTimeBtn').disabled = true;
+                document.getElementById('dateHelpText').innerHTML = "";
+                return;
+            }
+            const dayIdx = getDayIndex(dateVal);
+            if (dayIdx === 0) {
+                document.getElementById('dateHelpText').innerHTML = '<span class="text-danger">⚠️ Clinic closed on Sunday. Please select another day.</span>';
+                document.getElementById('nextToTimeBtn').disabled = true;
+                return;
+            }
+            const isWorking = isDoctorWorkingOnDate(selectedDoctor, dateVal);
+            if (!isWorking) {
+                document.getElementById('dateHelpText').innerHTML = `<span class="text-warning">⚠️ ${selectedDoctor.name} does not work on this day. Working days: ${selectedDoctor.workingDaysText}</span>`;
+                document.getElementById('nextToTimeBtn').disabled = true;
+                return;
+            }
+            document.getElementById('dateHelpText').innerHTML = `<span class="text-success"><i class="fas fa-check-circle"></i> ${selectedDoctor.name} is available on this day!</span>`;
+            selectedDate = dateVal;
+            document.getElementById('nextToTimeBtn').disabled = false;
+            updateSelectionInfo();
+        });
+
+        document.getElementById('nextToTimeBtn').addEventListener('click', () => {
+            if (!selectedDate || !selectedDoctor) return;
+            currentStep = 3;
+            updateStepUI();
+            renderTimeSlots();
+        });
+
+        function renderTimeSlots() {
+            if (!selectedDoctor || !selectedDate) return;
+            const bookedTimes = getBookedTimes(selectedDoctor.id, selectedDate);
+            const freeSlots = selectedDoctor.availableTimes.filter(t => !bookedTimes.includes(t));
+            const container = document.getElementById('timeSlotsContainer');
+            const nextBtn = document.getElementById('nextToDetailsBtn');
+            
+            if (freeSlots.length === 0) {
+                container.innerHTML = `<div class="alert alert-danger w-100">❌ No available time slots for ${selectedDoctor.name} on ${selectedDate}. Please go back and select another date.</div>`;
+                nextBtn.disabled = true;
+                selectedTimeSlot = "";
+                document.getElementById('timeSlotMessage').innerHTML = "";
+                return;
+            }
+            let btnsHtml = '';
+            freeSlots.forEach(slot => {
+                const isActive = (selectedTimeSlot === slot);
+                btnsHtml += `<button type="button" class="btn btn-outline-primary time-slot-btn ${isActive ? 'selected-time' : ''}" data-time="${slot}">${slot}</button>`;
+            });
+            container.innerHTML = btnsHtml;
+            document.getElementById('timeSlotMessage').innerHTML = `<i class="fas fa-info-circle"></i> ${freeSlots.length} slot(s) available. Click to select.`;
+            
+            document.querySelectorAll('.time-slot-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const timeVal = btn.getAttribute('data-time');
+                    if (!timeVal) return;
+                    document.querySelectorAll('.time-slot-btn').forEach(b => b.classList.remove('selected-time'));
+                    btn.classList.add('selected-time');
+                    selectedTimeSlot = timeVal;
+                    document.getElementById('nextToDetailsBtn').disabled = false;
+                    updateSelectionInfo();
+                });
+            });
+            
+            if (selectedTimeSlot && freeSlots.includes(selectedTimeSlot)) {
+                document.querySelectorAll('.time-slot-btn').forEach(btn => {
+                    if (btn.getAttribute('data-time') === selectedTimeSlot) btn.classList.add('selected-time');
+                });
+                nextBtn.disabled = false;
+            } else {
+                nextBtn.disabled = true;
+                selectedTimeSlot = "";
+            }
+        }
+
+        document.getElementById('backToDateBtn').addEventListener('click', () => {
+            currentStep = 2;
+            updateStepUI();
+        });
+        document.getElementById('nextToDetailsBtn').addEventListener('click', () => {
+            if (!selectedTimeSlot) {
+                alert('Please select a time slot.');
+                return;
+            }
+            currentStep = 4;
+            updateStepUI();
+        });
+        document.getElementById('backToTimeBtn').addEventListener('click', () => {
+            currentStep = 3;
+            updateStepUI();
+            renderTimeSlots();
+        });
+
+        // Final Submit (NO SERVICE)
+        document.getElementById('bookingForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('patientName').value.trim();
+            const phone = document.getElementById('patientPhone').value.trim();
+            const notes = document.getElementById('patientNotes').value;
+            if (!name || !phone) {
+                alert('Please fill in Name and Phone Number.');
+                return;
+            }
+            if (!selectedDoctor || !selectedDate || !selectedTimeSlot) {
+                alert('Missing appointment details. Please restart booking.');
+                resetAndShowBooking();
+                return;
+            }
+            const alreadyBooked = bookings.find(b => b.date === selectedDate && b.time === selectedTimeSlot && b.doctorId === selectedDoctor.id);
+            if (alreadyBooked) {
+                alert(`⚠️ The time slot ${selectedTimeSlot} is already taken. Please choose another.`);
+                currentStep = 3;
+                updateStepUI();
+                renderTimeSlots();
+                return;
+            }
+            const newBooking = {
+                id: Date.now(),
+                name, phone, date: selectedDate, time: selectedTimeSlot,
+                doctorId: selectedDoctor.id, doctorName: selectedDoctor.name,
+                notes, status: 'Confirmed', createdAt: new Date().toISOString()
+            };
+            bookings.push(newBooking);
+            saveBookings();
+            alert(`✅ Appointment confirmed!\nDoctor: ${selectedDoctor.name}\nDate: ${selectedDate}\nTime: ${selectedTimeSlot}`);
+            resetAndShowBooking();
+            showPage('view');
+        });
+
+        function resetAndShowBooking() {
+            resetBookingState();
+            renderDoctorList();
+            showPage('booking');
+        }
+
+        function displayBookings() {
+            const tbody = document.getElementById('bookingsList');
+            if (bookings.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">No appointments found!';
+                return;
+            }
+            let html = '';
+            bookings.forEach((b, idx) => {
+                html += `
+                    <tr>
+                        <td>${idx+1}</td>
+                        <td>${escapeHtml(b.name)}</td>
+                        <td><strong>${escapeHtml(b.doctorName)}</strong></td>
+                        <td>${b.date}</td>
+                        <td>${b.time}</td>
+                        <td><span class="status-badge"><i class="fas fa-check-circle"></i> ${b.status}</span></td>
+                        <td><button class="btn btn-sm btn-danger" onclick="deleteBooking(${b.id})"><i class="fas fa-trash"></i> Delete</button></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+        window.deleteBooking = function(id) {
+            if (confirm('Delete this appointment?')) {
+                bookings = bookings.filter(b => b.id !== id);
+                saveBookings();
+                displayBookings();
+            }
+        };
+        window.deleteAllBookings = function() {
+            if (confirm('⚠️ PERMANENT: Delete ALL appointments?')) {
+                bookings = [];
+                saveBookings();
+                displayBookings();
+            }
+        };
+        function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+        function showPage(page) {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('bookingPage').style.display = 'none';
+            document.getElementById('viewPage').style.display = 'none';
+            if (page === 'home') document.getElementById('homePage').style.display = 'block';
+            else if (page === 'booking') document.getElementById('bookingPage').style.display = 'block';
+            else if (page === 'view') { document.getElementById('viewPage').style.display = 'block'; displayBookings(); }
+        }
+
+        const todayStr = new Date().toISOString().split('T')[0];
+        if(dateInput) dateInput.setAttribute('min', todayStr);
+        
+        window.onload = () => {
+            showPage('home');
+            renderDoctorList();
+        };
+        
+        const style = document.createElement('style');
+        style.textContent = `.status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; background: #d4edda; color: #155724; display: inline-block; }`;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
