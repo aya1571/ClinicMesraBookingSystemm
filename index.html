@@ -170,12 +170,12 @@
                         <div class="col-md-4 text-center mb-4">
                             <i class="fas fa-clock fa-3x text-primary"></i>
                             <h5 class="mt-2">Operating Hours</h5>
-                            <p>Mon-Fri: 8am - 10pm<br>Sat: 9am - 5pm<br>Sun: Closed</p>
+                            <p>Mon-Fri: 8am - 10pm<br>Sat & Sun: Closed</p>
                         </div>
                         <div class="col-md-4 text-center mb-4">
                             <i class="fas fa-user-md fa-3x text-info"></i>
                             <h5 class="mt-2">Our Specialists</h5>
-                            <p>Dr. Sarah (Mon/Wed/Fri)<br>Dr. Amir (Tue/Thu/Sat)<br>Dr. Lisa (Mon-Fri)</p>
+                            <p>Dr. Sarah (Mon/Wed/Fri)<br>Dr. Amir (Tue/Thu/Fri)<br>Dr. Lisa (Mon-Fri)<br>Dr. Haslina (Mon-Fri)</p>
                         </div>
                         <div class="col-md-4 text-center mb-4">
                             <i class="fas fa-phone fa-3x text-success"></i>
@@ -294,15 +294,16 @@
             </div>
         </div>
     </div>
-    <footer><p>&copy; 2026 Clinic Mesra · Doctor First Flow</p></footer>
+    <footer><p>&copy; 2026 Clinic Mesra</p></footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // DOCTOR DATABASE
         const doctors = [
             { id: "dr_sarah", name: "Dr. Sarah (General Medicine)", specialty: "General Medicine, Pediatrics", workingDays: [1, 3, 5], workingDaysText: "Mon, Wed, Fri", icon: "👩‍⚕️", availableTimes: ["9:00 AM", "10:00 AM", "11:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"] },
-            { id: "dr_amir", name: "Dr. Amir (Internal Medicine)", specialty: "Internal Medicine, Cardiology", workingDays: [2, 4, 6], workingDaysText: "Tue, Thu, Sat", icon: "👨‍⚕️", availableTimes: ["9:00 AM", "11:00 AM", "2:00 PM", "3:00 PM", "5:00 PM", "8:00 PM"] },
-            { id: "dr_lisa", name: "Dr. Lisa (Family Medicine)", specialty: "Family Medicine, Vaccination", workingDays: [1, 2, 3, 4, 5], workingDaysText: "Mon - Fri", icon: "👩‍⚕️", availableTimes: ["10:00 AM", "11:00 AM", "2:00 PM", "4:00 PM", "5:00 PM", "8:00 PM"] }
+            { id: "dr_amir", name: "Dr. Amir (Internal Medicine)", specialty: "Internal Medicine, Cardiology", workingDays: [1, 2, 5], workingDaysText: "Tue, Thu, Fri", icon: "👨‍⚕️", availableTimes: ["9:00 AM", "11:00 AM", "2:00 PM", "3:00 PM", "5:00 PM", "8:00 PM"] },
+            { id: "dr_lisa", name: "Dr. Lisa (Family Medicine)", specialty: "Family Medicine, Vaccination", workingDays: [1, 2, 3, 4, 5], workingDaysText: "Mon - Fri", icon: "👩‍⚕️", availableTimes: ["10:00 AM", "11:00 AM", "2:00 PM", "4:00 PM", "5:00 PM", "8:00 PM"] },
+            { id: "dr_haslina", name: "Dr. Haslina (Pediatrics Children)", specialty: "Pediatrics Children", workingDays: [1, 2, 3, 4, 5], workingDaysText: "Mon - Fri", icon: "👩‍⚕️", availableTimes: ["9:00 AM", "10:00 AM", "1:00 PM", "3:00 PM", "6:00 PM", "9:00 PM"] }
         ];
 
         let bookings = JSON.parse(localStorage.getItem('clinicMesraBookings')) || [];
