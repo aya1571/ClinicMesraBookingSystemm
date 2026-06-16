@@ -443,7 +443,7 @@
             }
             const dayIdx = getDayIndex(dateVal);
             if (dayIdx === 0) {
-                document.getElementById('dateHelpText').innerHTML = '<span class="text-danger">⚠️ Clinic closed on Sunday. Please select another day.</span>';
+                document.getElementById('dateHelpText').innerHTML = '<span class="text-danger">⚠️ Clinic closed on Saturday and Sunday. Please select another day.</span>';
                 document.getElementById('nextToTimeBtn').disabled = true;
                 return;
             }
